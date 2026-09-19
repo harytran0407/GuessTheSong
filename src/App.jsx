@@ -549,7 +549,7 @@ export default function App() {
       previewAudioRef.current.currentTime = 0;
     }
     setPreviewingSongId(null);
-    setIsCustomModalOpen(false);
+    // Modal stays open so user can review the reset state
 
     setSaveSuccessToast(true);
     setTimeout(() => setSaveSuccessToast(false), 2500);
