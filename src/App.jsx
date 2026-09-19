@@ -2,28 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Play, Pause, RotateCcw } from 'lucide-react';
 import { saveAudioFile, getAllAudioFiles, deleteAudioFile, clearAllAudioFiles } from './audioStorage';
 
-// Danh sách 12 đáp án bài hát chính thức tương ứng với các file trong thư mục songs (1.mp3, 2.mp3, ..., 12.mp3)
-const SONG_TITLES = [
-  "GIÊ-HÔ-VA NISSI",
-  "CON CHỈ MONG TÔN CAO DANH NGÀI",
-  "HÔ-SA-NA",
-  "THƯA GÌ VỚI CHA",
-  "VÌ ĐỨC CHÚA TRỜI YÊU THƯƠNG",
-  "KẾT CHÚNG CON LÀM MỘT",
-  "ÂN ĐIỂN",
-  "GIỐNG CHÚA CÀNG HƠN",
-  "TẠI NƠI NGÀI GỌI CON",
-  "CHÚC CHO ĐẤNG NGỒI TRÊN NGÔI",
-  "LỚN BẤY DUY NGÀI",
-  "HOA HUỆ TRONG TRŨNG"
-];
+// Default track list — generic placeholders, users can customize via the Edit Questions modal
+const DEFAULT_TRACK_COUNT = 12;
 
-const DEFAULT_SONGS = SONG_TITLES.map((title, i) => ({
+const DEFAULT_SONGS = Array.from({ length: DEFAULT_TRACK_COUNT }, (_, i) => ({
   id: i + 1,
   number: i + 1,
   audioFile: `/songs/${i + 1}.mp3`,
-  title: title,
-  artist: "Thánh ca",
+  title: `Track ${i + 1}`,
+  artist: '',
   maxSeconds: 15,
   played: false
 }));
