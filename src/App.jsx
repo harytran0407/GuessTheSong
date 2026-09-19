@@ -428,7 +428,7 @@ export default function App() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `GuessTheSong_${new Date().toISOString().slice(0,10)}.guessgame`;
+      a.download = `GuessTheSong_${new Date().toISOString().slice(0, 10)}.guessgame`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -2056,7 +2056,7 @@ export default function App() {
                   {exportLoading ? (
                     <span className="animate-spin inline-block w-3 h-3 border-2 border-[#b8860b] border-t-transparent rounded-full" />
                   ) : (
-                    <span>↑</span>
+                    <span>↓</span>
                   )}
                   <span>{exportLoading ? 'Exporting…' : 'Export Game'}</span>
                 </button>
@@ -2069,7 +2069,7 @@ export default function App() {
                   {importLoading ? (
                     <span className="animate-spin inline-block w-3 h-3 border-2 border-stone-600 border-t-transparent rounded-full" />
                   ) : (
-                    <span>↓</span>
+                    <span>↑</span>
                   )}
                   <span>{importLoading ? 'Importing…' : 'Import Game'}</span>
                   <input
