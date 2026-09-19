@@ -1,0 +1,534 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  min-height: 100vh;
+}
+
+@layer base {
+  body {
+    background-color: #f4f1ea;
+    background-image:
+      radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.75) 0%, transparent 70%),
+      radial-gradient(circle at 100% 100%, rgba(220, 216, 206, 0.45) 0%, transparent 60%);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: #1a1a1a;
+    user-select: none;
+  }
+}
+
+/* Font chữ chính cho tiêu đề: Playfair Display (giống GUESS THE SONG) */
+.font-title {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Modern, Crisp, Highly Readable Typography */
+.font-editorial {
+  font-family: 'Montserrat', 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.font-outfit {
+  font-family: 'Outfit', 'Montserrat', sans-serif;
+  font-feature-settings: 'tnum' on, 'lnum' on;
+  font-variant-numeric: tabular-nums;
+}
+
+.font-vintage {
+  font-family: 'Montserrat', 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: 0.04em;
+  font-weight: 800;
+}
+
+/* Chữ kiểu luyến láy điệu đà nghệ thuật (Script / Calligraphy) */
+.font-script {
+  font-family: 'Great Vibes', 'Charm', cursive;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+}
+
+.font-charm {
+  font-family: 'Charm', 'Great Vibes', cursive;
+  letter-spacing: 0.02em;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', serif;
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+}
+
+/* Nhãn tròn trung tâm đĩa than có vân giấy tự nhiên */
+.vinyl-center-paper {
+  background-color: #fdfbf7;
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.95) 0%, rgba(246, 242, 233, 0.7) 80%, rgba(230, 222, 208, 0.85) 100%),
+    repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(0, 0, 0, 0.012) 4px, rgba(0, 0, 0, 0.012) 8px);
+  box-shadow:
+    inset 0 0 18px rgba(0, 0, 0, 0.1),
+    0 4px 25px rgba(0, 0, 0, 0.45);
+}
+
+/* Cần gạt đĩa than trang chủ */
+.home-tonearm-container {
+  transform-origin: 155px 55px;
+  transition: transform 0.8s cubic-bezier(0.34, 1.25, 0.64, 1);
+  will-change: transform;
+}
+
+.home-tonearm-idle {
+  transform: rotate(-24deg);
+}
+
+.home-tonearm-active {
+  transform: rotate(0deg);
+}
+
+/* Realistic Vinyl Record Visuals */
+.vinyl-disc {
+  background: radial-gradient(circle, #2c2c2c 0%, #141414 25%, #222222 28%, #0f0f0f 45%, #242424 47%, #121212 70%, #050505 100%);
+  box-shadow:
+    inset 0 0 35px rgba(255, 255, 255, 0.08),
+    inset 0 0 80px rgba(0, 0, 0, 0.85);
+  position: relative;
+}
+
+.vinyl-grooves {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: repeating-radial-gradient(circle,
+      transparent 0,
+      transparent 3px,
+      rgba(255, 255, 255, 0.04) 4px,
+      transparent 5px);
+  pointer-events: none;
+}
+
+.vinyl-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: conic-gradient(from 45deg,
+      rgba(255, 255, 255, 0.09) 0deg,
+      transparent 55deg,
+      rgba(255, 255, 255, 0.09) 120deg,
+      transparent 180deg,
+      rgba(255, 255, 255, 0.09) 240deg,
+      transparent 300deg,
+      rgba(255, 255, 255, 0.09) 360deg);
+  pointer-events: none;
+}
+
+/* Smooth Continuous Spinning Animation (33 RPM vibe) */
+@keyframes spinVinyl {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spinning {
+  animation: spinVinyl 3s linear infinite;
+  will-change: transform;
+}
+
+/* Xoay mượt tuyệt đối, đĩa than trang chủ tự động xoay liên tục */
+.spinning-disc {
+  animation: spinVinyl 3.5s linear infinite !important;
+  animation-play-state: running !important;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.spinning-disc.is-spinning {
+  animation-play-state: running !important;
+}
+
+.vinyl-rotating-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0.15) 0deg,
+    transparent 45deg,
+    transparent 135deg,
+    rgba(255, 255, 255, 0.15) 180deg,
+    transparent 225deg,
+    transparent 315deg,
+    rgba(255, 255, 255, 0.15) 360deg
+  );
+  pointer-events: none;
+}
+
+.vinyl-rotating-gleam {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.09) 0%, transparent 40%),
+              radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.07) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+/* Home tonearm smooth pivot with view-box calibration */
+.home-tonearm {
+  transform-origin: 118px 48px;
+  transform-box: view-box;
+  transition: transform 0.65s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+}
+
+/* Custom Audio Pill Marquee on Hover */
+.pill-marquee {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.pill-marquee-container:hover .pill-marquee {
+  display: inline-block;
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+  animation: pillMarqueeScroll 4s linear infinite alternate;
+}
+
+@keyframes pillMarqueeScroll {
+  0%, 25% {
+    transform: translateX(0);
+  }
+  75%, 100% {
+    transform: translateX(min(0px, calc(-100% + 105px)));
+  }
+}
+
+.home-tonearm-idle {
+  transform: rotate(-5deg);
+}
+
+.home-tonearm-active {
+  transform: rotate(0deg);
+}
+
+/* Tone arm needle smooth movement with realistic inertia */
+.tone-arm-needle {
+  transform-origin: 75px 25px;
+  transition: transform 0.75s cubic-bezier(0.34, 1.35, 0.64, 1);
+  will-change: transform;
+}
+
+.tone-arm-turntable {
+  transform-origin: 85px 30px;
+  transition: transform 0.85s cubic-bezier(0.34, 1.35, 0.64, 1);
+  will-change: transform;
+}
+
+.tone-arm-active {
+  transform: rotate(24deg);
+}
+
+.tone-arm-on-record {
+  transform: rotate(28deg);
+}
+
+.tone-arm-idle {
+  transform: rotate(0deg);
+}
+
+/* Rich Smooth Screen Transition */
+@keyframes screenEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+    filter: blur(4px);
+  }
+
+  60% {
+    filter: blur(0px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.animate-screen {
+  animation: screenEntrance 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* Modal Pop-In Transition */
+@keyframes modalPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal {
+  animation: modalPopIn 0.35s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+}
+
+/* Playing Pulse Effect with warm Vintage Gold accent */
+@keyframes playPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.65), 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  }
+
+  70% {
+    box-shadow: 0 0 0 18px rgba(212, 175, 55, 0), 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0), 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  }
+}
+
+.pulse-playing {
+  animation: playPulse 1.8s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Realistic Paper Card & Sleeve Textures */
+.paper-sleeve {
+  background: #faf7f2;
+  background-image: radial-gradient(#00000008 1px, transparent 1px);
+  background-size: 8px 8px;
+  box-shadow:
+    -16px 24px 50px -10px rgba(0, 0, 0, 0.28),
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Vết hằn tròn của đĩa than trên bìa album (Vintage Ring Wear) */
+.album-ring-wear {
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(0, 0, 0, 0.06),
+    0 0 0 1.5px rgba(255, 255, 255, 0.5),
+    inset 0 0 40px rgba(0, 0, 0, 0.04);
+  pointer-events: none;
+}
+
+/* Gáy album chân thực */
+.album-spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.16) 0%, rgba(0, 0, 0, 0.04) 70%, transparent 100%);
+  border-right: 1px solid rgba(0, 0, 0, 0.09);
+  pointer-events: none;
+}
+
+/* Miệng túi rút đĩa than bên phải */
+.album-opening-lip {
+  position: absolute;
+  right: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 5px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.45));
+  border-radius: 0 4px 4px 0;
+  pointer-events: none;
+}
+
+.paper-card {
+  background: #faf8f5;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+/* =========================================================
+   VINTAGE KNURLED ROLLER (THANH LĂN CHỌN SỐ GIÂY)
+   ========================================================= */
+.roller-cylinder {
+  width: 50px;
+  height: 160px;
+  border-radius: 12px;
+  background-color: #1a1c1e;
+  background-image:
+    linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(0, 0, 0, 0.25) 20%,
+      rgba(255, 255, 255, 0.35) 48%,
+      rgba(255, 255, 255, 0.45) 52%,
+      rgba(0, 0, 0, 0.25) 80%,
+      rgba(0, 0, 0, 0.8) 100%),
+    repeating-linear-gradient(to bottom,
+      #111315 0px,
+      #2d3238 3px,
+      #14171a 6px,
+      #444c56 9px,
+      #111315 12px);
+  box-shadow:
+    inset 0 6px 10px rgba(0, 0, 0, 0.9),
+    inset 0 -6px 10px rgba(0, 0, 0, 0.9),
+    0 10px 25px -5px rgba(0, 0, 0, 0.35),
+    0 0 0 2px rgba(0, 0, 0, 0.6);
+  cursor: ns-resize;
+  touch-action: none;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.roller-cylinder:hover {
+  box-shadow:
+    inset 0 6px 10px rgba(0, 0, 0, 0.9),
+    inset 0 -6px 10px rgba(0, 0, 0, 0.9),
+    0 12px 30px -4px rgba(0, 0, 0, 0.45),
+    0 0 0 2px #d97706;
+}
+
+.roller-notch-center {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 3px;
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b, 0 0 2px #ffffff;
+  pointer-events: none;
+}
+
+/* =========================================================
+   TURNTABLE DECK (ĐẦU ĐĨA THAN CHÂN THỰC)
+   ========================================================= */
+.turntable-deck {
+  background: linear-gradient(145deg, #e4ded3 0%, #d5cdbf 50%, #c4bba9 100%);
+  border: 2px solid rgba(0, 0, 0, 0.75);
+  box-shadow:
+    0 22px 50px -10px rgba(0, 0, 0, 0.35),
+    inset 0 1px 3px rgba(255, 255, 255, 0.9),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  position: relative;
+}
+
+.turntable-platter {
+  background: radial-gradient(circle, #25282c 0%, #15171a 65%, #0d0e10 100%);
+  border: 4px solid #4b5563;
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.95),
+    0 6px 16px rgba(0, 0, 0, 0.45);
+  border-radius: 50%;
+  position: relative;
+}
+
+.turntable-strobe {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+}
+
+/* Confetti Canvas */
+#confettiCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* =========================================================
+   MARQUEE BANNERS (BĂNG RÔN CUỘN CHỮ CHẠY QUA PHẢI & QUA TRÁI)
+   ========================================================= */
+@keyframes marqueeRight {
+  0% {
+    transform: translateX(-50%);
+  }
+
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes marqueeLeft {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-right {
+  display: flex;
+  width: max-content;
+  animation: marqueeRight 24s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-left {
+  display: flex;
+  width: max-content;
+  animation: marqueeLeft 24s linear infinite;
+  will-change: transform;
+}
+
+/* =========================================================
+   AMBIENT FALLING MUSICAL NOTES (HIỆU ỨNG NỐT NHẠC RƠI NHƯ TUYẾT)
+   ========================================================= */
+@keyframes snowfallNote {
+  0% {
+    transform: translateY(-50px) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+
+  8% {
+    opacity: var(--note-opacity, 0.28);
+  }
+
+  92% {
+    opacity: var(--note-opacity, 0.28);
+  }
+
+  100% {
+    transform: translateY(108vh) translateX(var(--note-drift, 35px)) rotate(var(--note-rot, 45deg));
+    opacity: 0;
+  }
+}
+
+.falling-note {
+  position: fixed;
+  top: -40px;
+  opacity: 0;
+  pointer-events: none;
+  animation: snowfallNote var(--note-duration, 14s) linear infinite;
+  animation-delay: var(--note-delay, 0s);
+  animation-fill-mode: backwards;
+  will-change: transform, opacity;
+  user-select: none;
+  z-index: 5;
+}
