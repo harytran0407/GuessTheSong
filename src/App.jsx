@@ -495,9 +495,14 @@ export default function App() {
 
       setSongs(importedSongs);
       setSelectedSongId(importedSongs[0]?.id || 1);
-      setIsCustomModalOpen(false);
       if (previewAudioRef.current) previewAudioRef.current.pause();
       setPreviewingSongId(null);
+
+      // Refresh modal draft with imported songs (keep modal open)
+      setModalTrackCount(importedSongs.length);
+      setModalDraftSongs(importedSongs.map(s => ({ ...s, previewUrl: s.audioFile })));
+      setPendingAudioFiles({});
+      setPendingAudioDeletes({});
 
       setSaveSuccessToast(true);
       setTimeout(() => setSaveSuccessToast(false), 2500);
