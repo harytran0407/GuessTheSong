@@ -112,7 +112,11 @@ export default function App() {
   const [pendingAudioDeletes, setPendingAudioDeletes] = useState({}); // { [songId]: boolean }
   const [previewingSongId, setPreviewingSongId] = useState(null);
   const [saveSuccessToast, setSaveSuccessToast] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importError, setImportError] = useState('');
   const previewAudioRef = useRef(null);
+  const importInputRef = useRef(null);
 
   // Hydrate custom audio files from IndexedDB on initial mount
   useEffect(() => {
@@ -380,6 +384,143 @@ export default function App() {
     // Toast thông báo lưu thành công
     setSaveSuccessToast(true);
     setTimeout(() => setSaveSuccessToast(false), 2500);
+  };
+
+  // ====== EXPORT GAME ======
+  // Đóng gói toàn bộ metadata + audio blobs (từ IndexedDB) thành 1 file .guessgame để chia sẻ cho máy khác
+  const handleExportGame = async () => {
+    setExportLoading(true);
+    try {
+      const audioMap = await getAllAudioFiles();
+
+      // Chuyển từng Blob thành base64
+      const blobToBase64 = (blob) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]); // chỉ lấy phần data, bỏ prefix
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      const audioFiles = {};
+      for (const [idStr, entry] of Object.entries(audioMap)) {
+        if (entry && entry.blob) {
+          audioFiles[idStr] = {
+            base64: await blobToBase64(entry.blob),
+            name: entry.name,
+            type: entry.type || 'audio/mpeg',
+            size: entry.size
+          };
+        }
+      }
+
+      const configStr = localStorage.getItem('guess_music_custom_config_v1');
+      const config = configStr ? JSON.parse(configStr) : null;
+
+      const exportPackage = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        appName: 'GuessTheSong',
+        config: config || { trackCount: songs.length, songs: songs.map(s => ({ id: s.id, number: s.number, title: s.title, maxSeconds: s.maxSeconds, played: s.played, hasCustomAudio: s.hasCustomAudio, customAudioName: s.customAudioName })) },
+        audioFiles
+      };
+
+      const blob = new Blob([JSON.stringify(exportPackage)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `GuessTheSong_${new Date().toISOString().slice(0,10)}.guessgame`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed:', err);
+      alert('Export failed: ' + err.message);
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  // ====== IMPORT GAME ======
+  // Đọc file .guessgame, khôi phục IndexedDB + localStorage + state
+  const handleImportGame = async (file) => {
+    if (!file) return;
+    setImportLoading(true);
+    setImportError('');
+    try {
+      const text = await file.text();
+      const pkg = JSON.parse(text);
+
+      if (!pkg.appName || pkg.appName !== 'GuessTheSong' || !pkg.config) {
+        throw new Error('Invalid .guessgame file.');
+      }
+
+      // 1. Xóa audio cũ và lưu audio mới vào IndexedDB
+      await clearAllAudioFiles();
+
+      const base64ToBlob = (b64, type) => {
+        const bytes = atob(b64);
+        const arr = new Uint8Array(bytes.length);
+        for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+        return new Blob([arr], { type });
+      };
+
+      for (const [idStr, entry] of Object.entries(pkg.audioFiles || {})) {
+        const blob = base64ToBlob(entry.base64, entry.type || 'audio/mpeg');
+        const fakeFile = new File([blob], entry.name || `audio-${idStr}`, { type: entry.type || 'audio/mpeg' });
+        await saveAudioFile(Number(idStr), fakeFile);
+      }
+
+      // 2. Khôi phục metadata vào localStorage
+      localStorage.setItem('guess_music_custom_config_v1', JSON.stringify(pkg.config));
+      localStorage.removeItem('guess_music_songs_v3');
+      localStorage.removeItem('guess_music_songs_v2');
+
+      // 3. Revoke old object URLs
+      customObjectUrlsRef.current.forEach(url => { try { URL.revokeObjectURL(url); } catch (e) { } });
+      customObjectUrlsRef.current = [];
+
+      // 4. Reload songs from new IndexedDB + config
+      const audioMap = await getAllAudioFiles();
+      const importedSongs = pkg.config.songs.map(s => {
+        const stored = audioMap[s.id];
+        let audioFile = `/songs/${s.id}.mp3`;
+        let hasCustom = false;
+        let customName = '';
+        if (stored && stored.blob) {
+          audioFile = URL.createObjectURL(stored.blob);
+          customObjectUrlsRef.current.push(audioFile);
+          hasCustom = true;
+          customName = stored.name;
+        }
+        return {
+          id: s.id,
+          number: s.number || s.id,
+          title: s.title || `Track ${s.id}`,
+          artist: 'Thánh ca',
+          maxSeconds: s.maxSeconds || 15,
+          played: !!s.played,
+          audioFile,
+          hasCustomAudio: hasCustom,
+          customAudioName: customName
+        };
+      });
+
+      setSongs(importedSongs);
+      setSelectedSongId(importedSongs[0]?.id || 1);
+      setIsCustomModalOpen(false);
+      if (previewAudioRef.current) previewAudioRef.current.pause();
+      setPreviewingSongId(null);
+
+      setSaveSuccessToast(true);
+      setTimeout(() => setSaveSuccessToast(false), 2500);
+    } catch (err) {
+      console.error('Import failed:', err);
+      setImportError('Import failed: ' + err.message);
+    } finally {
+      setImportLoading(false);
+      if (importInputRef.current) importInputRef.current.value = '';
+    }
   };
 
   // Khôi phục tất cả về mặc định 12 bài thánh ca
@@ -1890,15 +2031,62 @@ export default function App() {
 
             {/* Modal Bottom Actions */}
             <div className="pt-3.5 mt-2 border-t border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={handleResetToDefaults}
-                className="text-xs font-editorial font-bold text-stone-500 hover:text-rose-600 transition flex items-center gap-1 cursor-pointer order-2 sm:order-1"
-                title="Reset all tracks to initial 12 hymns"
-              >
-                <span>↺</span>
-                <span>Reset All to Defaults</span>
-              </button>
+              {/* Left: Reset + Export/Import */}
+              <div className="flex flex-wrap items-center gap-2 order-2 sm:order-1">
+                <button
+                  type="button"
+                  onClick={handleResetToDefaults}
+                  className="text-xs font-editorial font-bold text-stone-500 hover:text-rose-600 transition flex items-center gap-1 cursor-pointer"
+                  title="Reset all tracks to initial 12 hymns"
+                >
+                  <span>↺</span>
+                  <span>Reset All</span>
+                </button>
+
+                <span className="text-stone-300 text-xs select-none">|</span>
+
+                {/* Export button */}
+                <button
+                  type="button"
+                  onClick={handleExportGame}
+                  disabled={exportLoading}
+                  className="text-xs font-editorial font-bold text-[#b8860b] hover:text-[#8B6914] transition flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                  title="Export all tracks & audio as a shareable package file"
+                >
+                  {exportLoading ? (
+                    <span className="animate-spin inline-block w-3 h-3 border-2 border-[#b8860b] border-t-transparent rounded-full" />
+                  ) : (
+                    <span>↑</span>
+                  )}
+                  <span>{exportLoading ? 'Exporting…' : 'Export Game'}</span>
+                </button>
+
+                {/* Import button */}
+                <label
+                  className="text-xs font-editorial font-bold text-stone-600 hover:text-stone-900 transition flex items-center gap-1 cursor-pointer"
+                  title="Import a .guessgame package file from another device"
+                >
+                  {importLoading ? (
+                    <span className="animate-spin inline-block w-3 h-3 border-2 border-stone-600 border-t-transparent rounded-full" />
+                  ) : (
+                    <span>↓</span>
+                  )}
+                  <span>{importLoading ? 'Importing…' : 'Import Game'}</span>
+                  <input
+                    ref={importInputRef}
+                    type="file"
+                    accept=".guessgame,application/json"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) handleImportGame(e.target.files[0]);
+                    }}
+                  />
+                </label>
+
+                {importError && (
+                  <span className="text-rose-500 text-[10px] font-editorial font-bold ml-1">{importError}</span>
+                )}
+              </div>
 
               <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end order-1 sm:order-2">
                 <button
